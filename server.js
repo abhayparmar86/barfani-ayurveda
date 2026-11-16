@@ -2,8 +2,9 @@ const path = require('path');
 const express = require('express');
 const cookieSession = require('cookie-session');
 const config = require('./src/config');
-require('./src/db');
+const db = require('./src/db');
 const { attachLocals } = require('./src/middleware');
+const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 
 const app = express();
 
@@ -37,8 +38,11 @@ app.use(
     secure: config.isProd,
   })
 );
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: config.isProd ? '7d' : 0 }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+if (!config.isVercel) {
+  app.use(express.static(path.join(__dirname, 'public'), { maxAge: config.isProd ? '7d' : 0 }));
+  app.use('/uploads', express.static(uploadDir));
+}
+app.use((req, res, next) => db.initialize().then(() => next()).catch(next));
 app.use(attachLocals);
 
 app.use(require('./src/routes/seo'));

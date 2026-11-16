@@ -8,10 +8,15 @@
     "start": "node server.js",
     "go": "npm install && node server.js",
     "dev": "node --watch server.js",
-    "test": "node tests/smoke.js"
+    "test": "node tests/smoke.js",
+    "migrate:data": "node scripts/migrate-sqlite-to-turso.js"
   },
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "@vercel/blob": "^2.9.0",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^11.3.0",
     "cookie-session": "^2.1.0",
@@ -21,5 +26,8 @@
     "express-rate-limit": "^7.4.0",
     "multer": "^2.0.0",
     "nodemailer": "^10.3.1"
+  },
+  "overrides": {
+    "zod": "^4.6.6"
   }
 }

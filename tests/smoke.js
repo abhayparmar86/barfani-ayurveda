@@ -15,6 +15,7 @@ const BASE = `http://localhost:${PORT}`;
 const KEY_SECRET = 'test_secret';
 const WEBHOOK_SECRET = 'test_webhook_secret';
 const dbFile = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'barfani-')), 'test.db');
+const uploadDir = path.join(path.dirname(dbFile), 'uploads');
 
 let passed = 0;
 let failed = 0;
@@ -116,7 +117,8 @@ const waitForServer = async () => {
   const server = spawn('node', ['server.js'], {
     cwd: path.join(__dirname, '..'),
     env: {
-      ...process.env, PORT, DB_PATH: dbFile, SESSION_SECRET: 'test', ADMIN_PASSWORD: 'adminpass', ADMIN_USER: 'admin',
+      ...process.env, NODE_ENV: 'test', PORT, DB_PATH: dbFile, UPLOAD_DIR: uploadDir,
+      SESSION_SECRET: 'test', ADMIN_PASSWORD: 'adminpass', ADMIN_USER: 'admin',
       RAZORPAY_KEY_ID: 'rzp_test_key', RAZORPAY_KEY_SECRET: KEY_SECRET, RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
       RAZORPAY_API_BASE: `http://localhost:${FAKE_RZP_PORT}`, SITE_URL: 'https://barfaniayurveda.in',
       DOCTOR_EMAIL: 'barfaniayurveda@gmail.com', SMTP_HOST: '127.0.0.1', SMTP_PORT: fakeSmtp.port,
@@ -262,10 +264,25 @@ const waitForServer = async () => {
     r = await guest('POST', '/reviews', { form: { productId: '1', rating: '5', comment: 'Guest review' } });
     check('guest cannot post a review (sent to login)', r.status === 302 && r.location === '/login');
 
+    const spoofedImage = new FormData();
+    spoofedImage.set('productId', '1'); spoofedImage.set('from', 'product'); spoofedImage.set('rating', '4');
+    spoofedImage.set('comment', 'Review with fake image');
+    spoofedImage.set('image', new Blob([Buffer.from('not an image')], { type: 'image/png' }), 'fake.png');
+    r = await shopper('POST', '/reviews', { body: spoofedImage });
+    check('review upload rejects mismatched image bytes', r.status === 302 && r.location === '/product/ayurvedic-hair-oil#reviews');
+
     const fd = new FormData();
     fd.set('productId', '1'); fd.set('from', 'product'); fd.set('rating', '4'); fd.set('comment', 'Lovely smell and my scalp feels fresh.');
+    fd.set('image', new Blob([Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/rXcAAAAASUVORK5CYII=',
+      'base64'
+    )], { type: 'image/png' }), 'review.png');
     r = await shopper('POST', '/reviews', { body: fd });
     check('review on product page redirects back to that product', r.status === 302 && r.location === '/product/ayurvedic-hair-oil#reviews', `${r.status} ${r.location}`);
+    r = await shopper('GET', '/product/ayurvedic-hair-oil');
+    const reviewImage = r.text.match(/<img src="(\/uploads\/[^"]+)"/);
+    check('review image is saved and served from local storage', Boolean(reviewImage)
+      && (await shopper('GET', reviewImage[1])).status === 200);
     const fd2 = new FormData();
     fd2.set('productId', '1'); fd2.set('from', 'product'); fd2.set('rating', '5'); fd2.set('comment', 'Second review attempt');
     r = await shopper('POST', '/reviews', { body: fd2 });
@@ -333,9 +350,14 @@ const waitForServer = async () => {
     failed++;
     console.log('  FAIL unexpected error:', err);
   } finally {
-    server.kill();
+    if (server.exitCode === null) {
+      const serverExit = new Promise((resolve) => server.once('exit', resolve));
+      server.kill();
+      await serverExit;
+    }
     fakeRzp.close();
     fakeSmtp.server.close();
+    fs.rmSync(path.dirname(dbFile), { recursive: true, force: true });
   }
 
   console.log(`\n${passed} passed, ${failed} failed`);

@@ -97,15 +97,32 @@ payment signatures, webhook, reviews, wishlist and admin. Run it after every cha
 
 ## Deployment note
 
-This project is not ready to deploy to Vercel as-is. It runs a long-lived Express server, stores orders,
-accounts and reviews in a local SQLite database, and stores uploaded images on disk. Vercel uses
-serverless functions with ephemeral filesystems, so those files are not durable and `better-sqlite3`
-is not a suitable production database there.
+The app is configured for Vercel's Express runtime. On Vercel it uses Turso (libSQL) for persistent
+commerce data and Vercel Blob for review images; local development and tests continue to use SQLite
+and the local `uploads/` folder. `public/` is served by Vercel's CDN, and EJS views are included in
+the function bundle.
 
-To use Vercel, first adapt the server for Vercel's function model and move the database to a hosted,
-persistent database; move uploaded images to durable object storage as well. Until then, deploy this
-version to a Node.js host with a persistent disk and configure backups. The `.env` file and runtime
-data are intentionally excluded from Git; configure production environment variables in the host.
+### Prepare and deploy
+
+1. Create a Turso database and a database auth token. Set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`
+   in your local `.env` and Vercel's Production environment variables.
+2. Connect a Vercel Blob store to the Vercel project. Set `BLOB_READ_WRITE_TOKEN` locally for migration;
+   Vercel supplies it after the store is connected.
+3. Stop the local site and back up `data/` and `uploads/`. Before the first deployment, migrate the
+   local `data/barfani.db` and review images with `npm run migrate:data`. The migration refuses to merge
+   into non-empty commerce tables, can resume after interruption, and prints row counts rather than
+   customer details. Keep a backup of the SQLite database and `uploads/` until you have verified the
+   deployed records and images.
+4. Import this GitHub repo into Vercel. Set `NODE_ENV=production`, `SITE_URL=https://barfaniayurveda.in`,
+   `SESSION_SECRET`, `ADMIN_PASSWORD`, and `FORCE_HTTPS=true`. Add SMTP and Razorpay secrets if those
+   features should be enabled. Set `SITE_URL` for Production only; Preview deployments default to their
+   Vercel URL. Never commit `.env`, database files, or provider tokens.
+5. Test the Vercel preview deployment and its checkout, Razorpay webhook, order emails, admin pages,
+   and image uploads before assigning `barfaniayurveda.in`.
+
+The local database migration is a one-time bootstrap; subsequent orders and reviews are stored in Turso.
+Turso and Vercel Blob have their own account limits and pricing, so confirm current quotas before launch.
+Do not send real customer traffic to Vercel until the migration and end-to-end checks are complete.
 
 ## Troubleshooting
 

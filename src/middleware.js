@@ -5,6 +5,7 @@ const config = require('./config');
 const clean = (value, max) => String(value || '').trim().slice(0, max);
 const flash = (req, type, msg) => { req.session.flash = { type, msg }; };
 const wantsJson = (req) => req.get('X-Requested-With') === 'fetch';
+const asyncHandler = (handler) => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 
 // Only the path is reused, so a forged Referer cannot redirect off-site.
 function back(req, fallback = '/') {
@@ -16,20 +17,17 @@ function back(req, fallback = '/') {
   }
 }
 
-function attachLocals(req, res, next) {
+const attachLocals = asyncHandler(async (req, res, next) => {
   req.user = req.session.userId
-    ? db.prepare('SELECT id, name, email, phone FROM users WHERE id = ?').get(req.session.userId)
+    ? await db.get('SELECT id, name, email, phone FROM users WHERE id = ?', [req.session.userId])
     : null;
   if (req.session.userId && !req.user) delete req.session.userId;
 
   const cart = req.session.cart || {};
   res.locals.user = req.user;
   res.locals.cartCount = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
-  res.locals.wishIds = new Set(
-    req.user
-      ? db.prepare('SELECT product_id FROM wishlist WHERE user_id = ?').all(req.user.id).map((r) => r.product_id)
-      : []
-  );
+  const wishlist = req.user ? await db.all('SELECT product_id FROM wishlist WHERE user_id = ?', [req.user.id]) : [];
+  res.locals.wishIds = new Set(wishlist.map((r) => r.product_id));
   res.locals.flash = req.session.flash || null;
   delete req.session.flash;
   res.locals.config = config;
@@ -46,7 +44,7 @@ function attachLocals(req, res, next) {
     return parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1][0]}.` : parts[0] || 'Customer';
   };
   next();
-}
+});
 
 function requireLogin(req, res, next) {
   if (req.user) return next();
@@ -79,4 +77,4 @@ function requireAdmin(req, res, next) {
   res.status(401).send('Authentication required.');
 }
 
-module.exports = { attachLocals, requireLogin, requireAdmin, flash, back, clean, wantsJson };
+module.exports = { attachLocals, asyncHandler, requireLogin, requireAdmin, flash, back, clean, wantsJson };

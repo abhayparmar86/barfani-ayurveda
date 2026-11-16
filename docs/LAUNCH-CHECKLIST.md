@@ -39,7 +39,8 @@ Done = built and covered by `npm test` or checked by hand. Open = still needs yo
 | sitemap.xml and robots.txt | Done: submit the sitemap in Google Search Console |
 | Page speed | Open: measure with PageSpeed Insights after deploying |
 | www and root domain redirect | Open: configure at your host or DNS |
-| Rate limits, password hashing, upload checks, admin protection | Done |
+| Rate limits, password hashing, upload checks, admin protection | Done locally; rate limits are per function instance on Vercel |
+| Vercel deployment, Turso persistence and Blob uploads | Prepared in code; configure providers, migrate local data, and verify before launch |
 
 ## Analytics and marketing
 | Item | Status |

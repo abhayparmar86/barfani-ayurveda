@@ -1,13 +1,12 @@
 const db = require('./db');
 
 // Average, count and 5-to-1 star bars for one product (or all products when productId is null).
-function ratingSummary(productId = null) {
-  const rows = db
-    .prepare(
-      `SELECT rating, COUNT(*) AS count FROM reviews
-       WHERE approved = 1 AND (? IS NULL OR product_id = ?) GROUP BY rating`
-    )
-    .all(productId, productId);
+async function ratingSummary(productId = null) {
+  const rows = await db.all(
+    `SELECT rating, COUNT(*) AS count FROM reviews
+     WHERE approved = 1 AND (? IS NULL OR product_id = ?) GROUP BY rating`,
+    [productId, productId]
+  );
   const counts = Object.fromEntries(rows.map((r) => [r.rating, r.count]));
   const total = rows.reduce((sum, r) => sum + r.count, 0);
   const sum = rows.reduce((s, r) => s + r.rating * r.count, 0);

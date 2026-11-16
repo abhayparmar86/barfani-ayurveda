@@ -4,7 +4,7 @@ const db = require('../db');
 const config = require('../config');
 const mailer = require('../mailer');
 const { ratingSummary } = require('../reviewStats');
-const { flash, clean } = require('../middleware');
+const { asyncHandler, flash, clean } = require('../middleware');
 
 const CATEGORIES = ['Hair Care', 'Skin Care'];
 const SORTS = {
@@ -70,44 +70,40 @@ const FAQS = [
 
 const contactLimiter = rateLimit({ windowMs: 60 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false });
 
-router.get('/', (req, res) => {
-  const featured = db.prepare('SELECT * FROM product_cards WHERE in_stock = 1 ORDER BY id LIMIT 4').all();
-  const reviews = db
-    .prepare(
-      `SELECT r.*, u.name AS user_name, p.name AS product_name, p.slug AS product_slug FROM reviews r
+router.get('/', asyncHandler(async (req, res) => {
+  const featured = await db.all('SELECT * FROM product_cards WHERE in_stock = 1 ORDER BY id LIMIT 4');
+  const reviews = await db.all(
+    `SELECT r.*, u.name AS user_name, p.name AS product_name, p.slug AS product_slug FROM reviews r
        JOIN users u ON u.id = r.user_id LEFT JOIN products p ON p.id = r.product_id
        WHERE r.approved = 1 ORDER BY r.id DESC LIMIT 3`
-    )
-    .all();
+  );
   res.render('home', { title: 'Pure Ayurvedic Care', featured, reviews });
-});
+}));
 
-router.get('/shop', (req, res) => {
+router.get('/shop', asyncHandler(async (req, res) => {
   const category = CATEGORIES.includes(req.query.category) ? req.query.category : '';
   const q = clean(req.query.q, 50);
   const sort = SORTS[req.query.sort] ? req.query.sort : '';
-  const products = db
-    .prepare(
-      `SELECT * FROM product_cards
+  const products = await db.all(
+    `SELECT * FROM product_cards
        WHERE in_stock = 1 AND (? = '' OR category = ?) AND (name LIKE ? OR benefit LIKE ?)
-       ORDER BY ${SORTS[sort] || 'id'}`
-    )
-    .all(category, category, `%${q}%`, `%${q}%`);
+       ORDER BY ${SORTS[sort] || 'id'}`,
+    [category, category, `%${q}%`, `%${q}%`]
+  );
   res.render('shop', { title: 'Shop', products, category, q, sort, categories: CATEGORIES });
-});
+}));
 
-router.get('/product/:slug', (req, res, next) => {
-  const product = db.prepare('SELECT * FROM product_cards WHERE slug = ? AND in_stock = 1').get(req.params.slug);
+router.get('/product/:slug', asyncHandler(async (req, res, next) => {
+  const product = await db.get('SELECT * FROM product_cards WHERE slug = ? AND in_stock = 1', [req.params.slug]);
   if (!product) return next();
 
-  const reviews = db
-    .prepare(
-      `SELECT r.*, u.name AS user_name FROM reviews r JOIN users u ON u.id = r.user_id
-       WHERE r.approved = 1 AND r.product_id = ? ORDER BY r.id DESC LIMIT 50`
-    )
-    .all(product.id);
-  const summary = ratingSummary(product.id);
-  const related = db.prepare('SELECT * FROM product_cards WHERE in_stock = 1 AND id != ? ORDER BY id LIMIT 4').all(product.id);
+  const reviews = await db.all(
+    `SELECT r.*, u.name AS user_name FROM reviews r JOIN users u ON u.id = r.user_id
+     WHERE r.approved = 1 AND r.product_id = ? ORDER BY r.id DESC LIMIT 50`,
+    [product.id]
+  );
+  const summary = await ratingSummary(product.id);
+  const related = await db.all('SELECT * FROM product_cards WHERE in_stock = 1 AND id != ? ORDER BY id LIMIT 4', [product.id]);
   const url = `${config.siteUrl}/product/${product.slug}`;
   const description = res.locals.filled(product.benefit, `${product.name} by Barfani Ayurveda.`);
 
@@ -147,7 +143,7 @@ router.get('/product/:slug', (req, res, next) => {
     ogImage: config.siteUrl + product.image,
     bodyClass: 'has-buybar',
   });
-});
+}));
 
 router.get('/about', (req, res) => res.render('about', { title: 'About Us' }));
 router.get('/faq', (req, res) => res.render('faq', { title: 'Frequently Asked Questions', faqs: FAQS }));
@@ -160,7 +156,7 @@ router.get('/policy/:name', (req, res, next) => {
 
 router.get('/contact', (req, res) => res.render('contact', { title: 'Consult the Vaidya', form: {} }));
 
-router.post('/contact', contactLimiter, async (req, res) => {
+router.post('/contact', contactLimiter, asyncHandler(async (req, res) => {
   const data = {};
   CONSULT_FIELDS.forEach(([key]) => { data[key] = clean(req.body[key], 1500); });
 
@@ -169,7 +165,7 @@ router.post('/contact', contactLimiter, async (req, res) => {
     return res.status(400).render('contact', { title: 'Consult the Vaidya', form: data });
   }
 
-  db.prepare('INSERT INTO consultations (data_json) VALUES (?)').run(JSON.stringify(data));
+  await db.run('INSERT INTO consultations (data_json) VALUES (?)', [JSON.stringify(data)]);
   const text = CONSULT_FIELDS.map(([key, label]) => `${label}: ${data[key] || '-'}`).join('\n');
   await mailer.sendToDoctor({
     subject: `New consultation request: ${data.name}`,
@@ -179,6 +175,6 @@ router.post('/contact', contactLimiter, async (req, res) => {
 
   flash(req, 'success', 'Thank you. The Vaidya will contact you soon via your preferred mode.');
   res.redirect('/contact');
-});
+}));
 
 module.exports = router;

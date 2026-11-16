@@ -2,9 +2,16 @@ require('dotenv').config();
 
 const flag = (value, fallback) => (value === undefined ? fallback : value === 'true');
 const isProd = process.env.NODE_ENV === 'production';
+const isVercel = process.env.VERCEL === '1';
+const defaultSiteUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : 'http://localhost:3000';
 
 if (isProd && !process.env.SESSION_SECRET) {
   throw new Error('SESSION_SECRET must be set in production.');
+}
+if (isVercel && !process.env.BLOB_READ_WRITE_TOKEN) {
+  throw new Error('BLOB_READ_WRITE_TOKEN must be set on Vercel.');
 }
 
 const razorpay = {
@@ -17,9 +24,10 @@ razorpay.enabled = Boolean(razorpay.keyId && razorpay.keySecret);
 
 module.exports = {
   siteName: 'Barfani Ayurveda',
-  siteUrl: (process.env.SITE_URL || 'http://localhost:3000').replace(/\/$/, ''),
+  siteUrl: (process.env.SITE_URL || defaultSiteUrl).replace(/\/$/, ''),
   port: process.env.PORT || 3000,
   isProd,
+  isVercel,
   forceHttps: flag(process.env.FORCE_HTTPS, false),
   secret: process.env.SESSION_SECRET || 'dev-only-secret',
   doctorName: process.env.DOCTOR_NAME || 'Dr. R.V. Parmar',
