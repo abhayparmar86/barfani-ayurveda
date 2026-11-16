@@ -12,7 +12,7 @@
     "migrate:data": "node scripts/migrate-sqlite-to-turso.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
