@@ -1,0 +1,56 @@
+<%- include('partials/header') %>
+<main class="container section">
+  <h1>Checkout</h1>
+  <% if (mode === 'buynow') { %><p class="muted">You are buying this item only. <a href="/cart">Go to your cart instead</a></p><% } %>
+  <div class="checkout-layout">
+    <form method="post" action="/checkout" class="form">
+      <input type="hidden" name="mode" value="<%= mode %>">
+      <div class="form-card">
+        <h2>Delivery details</h2>
+        <label>Full name *<input name="name" required maxlength="100" autocomplete="name" value="<%= form.name || '' %>"></label>
+        <div class="row">
+          <label>Phone / WhatsApp *<input name="phone" type="tel" required maxlength="100" autocomplete="tel" value="<%= form.phone || '' %>"></label>
+          <label>Email (for order updates) *<input name="email" type="email" required maxlength="100" autocomplete="email" value="<%= form.email || '' %>"></label>
+        </div>
+        <label>Address *<textarea name="address" required maxlength="500" rows="3" autocomplete="street-address"><%= form.address || '' %></textarea></label>
+        <div class="row">
+          <label>City *<input name="city" required maxlength="100" value="<%= form.city || '' %>"></label>
+          <label>State / Region<input name="state" maxlength="100" value="<%= form.state || '' %>"></label>
+        </div>
+        <div class="row">
+          <label>PIN / ZIP code *<input name="pincode" required maxlength="100" autocomplete="postal-code" value="<%= form.pincode || '' %>"></label>
+          <label>Country *<input name="country" required maxlength="100" autocomplete="country-name" value="<%= form.country || 'India' %>"></label>
+        </div>
+        <label>Notes (optional)<textarea name="notes" maxlength="500" rows="2"><%= form.notes || '' %></textarea></label>
+      </div>
+
+      <div class="form-card">
+        <h2>Payment</h2>
+        <% if (config.razorpay.enabled) { %>
+          <label class="radio">
+            <input type="radio" name="payment" value="online"<%= form.payment !== 'whatsapp' ? ' checked' : '' %>>
+            <span><strong>Pay online</strong><small>UPI, cards, netbanking and wallets via Razorpay. Available for India.</small></span>
+          </label>
+        <% } %>
+        <label class="radio">
+          <input type="radio" name="payment" value="whatsapp"<%= (!config.razorpay.enabled || form.payment === 'whatsapp') ? ' checked' : '' %>>
+          <span><strong>Pay later on WhatsApp</strong><small>We confirm shipping and payment details with you after you place the order. Best for orders outside India.</small></span>
+        </label>
+      </div>
+      <button class="btn btn-gold btn-block">Place order</button>
+    </form>
+
+    <aside class="summary-card">
+      <h2>Your order</h2>
+      <% lines.forEach(l => { %>
+        <div class="mini-line"><span><%= l.product.name %> × <%= l.qty %></span><span><%= inr(l.product.price * l.qty) %></span></div>
+      <% }) %>
+      <div class="row-line"><span>Subtotal</span><span><%= inr(pricing.subtotal) %></span></div>
+      <% if (pricing.discount > 0) { %><div class="row-line good"><span>Diwali offer</span><span>−<%= inr(pricing.discount) %></span></div><% } %>
+      <div class="row-line total"><span>Total</span><span><%= inr(pricing.total) %></span></div>
+      <% if (pricing.freeGift) { %><p class="notice"><%- include('partials/icon', { name: 'gift', size: 18 }) %> <span>A free Diwali gift is included with your order.</span></p><% } %>
+      <p class="muted small"><%= pricing.bundles > 0 ? 'Free shipping within India on offer orders.' : 'Shipping charges, if any, are confirmed before dispatch.' %></p>
+    </aside>
+  </div>
+</main>
+<%- include('partials/footer') %>

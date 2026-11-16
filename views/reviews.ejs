@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+<main class="container section">
+  <p class="eyebrow">Reviews</p>
+  <h1>Patient reviews</h1>
+  <div class="tabs">
+    <a href="/reviews" class="<%= !selected ? 'active' : '' %>">All products</a>
+    <% products.forEach(p => { %>
+      <a href="/reviews?product=<%= p.id %>" class="<%= selected === p.id ? 'active' : '' %>"><%= p.name %><% if (p.review_count) { %> (<%= p.review_count %>)<% } %></a>
+    <% }) %>
+  </div>
+  <div class="reviews-layout">
+    <div>
+      <%- include('partials/rating-summary', { summary }) %>
+      <%- include('partials/review-form') %>
+    </div>
+    <div>
+      <% if (!reviews.length) { %><p>No reviews yet. Be the first!</p><% } %>
+      <% reviews.forEach(r => { %><%- include('partials/review', { r }) %><% }) %>
+    </div>
+  </div>
+</main>
+<%- include('partials/footer') %>

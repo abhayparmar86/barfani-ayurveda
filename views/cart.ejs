@@ -1,0 +1,59 @@
+<%- include('partials/header') %>
+<main class="container section">
+  <h1>Your cart</h1>
+  <% if (!lines.length) { %>
+    <div class="empty">
+      <%- include('partials/icon', { name: 'bag', size: 48 }) %>
+      <h2>Your cart is empty</h2>
+      <p>Browse our handmade Ayurvedic products and add your favourites.</p>
+      <a class="btn" href="/shop">Continue shopping</a>
+    </div>
+  <% } else { %>
+    <div class="cart-layout">
+      <div class="cart-items">
+        <% lines.forEach(l => { %>
+          <div class="cart-item">
+            <a class="thumb" href="/product/<%= l.product.slug %>"><img src="<%= l.product.image %>" alt="<%= l.product.name %>" onerror="this.onerror=null;this.src='/images/placeholder.svg'"></a>
+            <div class="ci-info">
+              <a class="ci-name" href="/product/<%= l.product.slug %>"><%= l.product.name %></a>
+              <span class="muted small"><%= l.product.size %> · <%= inr(l.product.price) %> each</span>
+              <span class="good small"><%- include('partials/icon', { name: 'check', size: 14 }) %> In stock</span>
+              <div class="ci-controls">
+                <form method="post" action="/cart/update/<%= l.product.id %>" class="inline" data-autosubmit>
+                  <%- include('partials/qty-stepper', { value: l.qty }) %>
+                  <button class="btn btn-outline btn-sm">Update</button>
+                </form>
+                <form method="post" action="/cart/remove/<%= l.product.id %>"><button class="link-btn">Remove</button></form>
+              </div>
+            </div>
+            <strong class="ci-total"><%= inr(l.product.price * l.qty) %></strong>
+          </div>
+        <% }) %>
+        <p><a href="/shop">← Continue shopping</a></p>
+      </div>
+
+      <aside class="summary-card">
+        <h2>Order summary</h2>
+        <div class="row-line"><span>Subtotal</span><span><%= inr(pricing.subtotal) %></span></div>
+        <% if (pricing.discount > 0) { %><div class="row-line good"><span>Diwali offer</span><span>−<%= inr(pricing.discount) %></span></div><% } %>
+        <div class="row-line total"><span>Total</span><span><%= inr(pricing.total) %></span></div>
+
+        <% if (config.offer.enabled) { %>
+          <% if (pricing.freeGift) { %>
+            <p class="notice"><%- include('partials/icon', { name: 'gift', size: 18 }) %> <span>A free Diwali gift is included with your order.</span></p>
+          <% } %>
+          <% const remainder = pricing.eligibleUnits % config.offer.bundleSize; %>
+          <% if (remainder !== 0) { %>
+            <div class="progress"><span style="width: <%= Math.round((remainder / config.offer.bundleSize) * 100) %>%"></span></div>
+            <p class="muted small">Add <%= config.offer.bundleSize - remainder %> more offer bottle(s) to get <%= config.offer.bundleSize %> for <%= inr(config.offer.bundlePrice) %>.</p>
+          <% } %>
+        <% } %>
+
+        <p class="muted small"><%= pricing.bundles > 0 ? 'Free shipping within India on offer orders.' : 'Shipping charges, if any, are confirmed before dispatch.' %></p>
+        <a class="btn btn-gold btn-block" href="/checkout">Proceed to checkout</a>
+        <% if (config.razorpay.enabled) { %><p class="small muted center">Pay securely online or choose pay later at checkout.</p><% } %>
+      </aside>
+    </div>
+  <% } %>
+</main>
+<%- include('partials/footer') %>

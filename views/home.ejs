@@ -1,0 +1,116 @@
+<%- include('partials/header') %>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow eyebrow-gold">Shraddha Clinic · Surendranagar, Gujarat</p>
+      <h1>Pure Ayurveda,<br><em>made by hand.</em></h1>
+      <p class="lead">Small-batch hair care and skin care, formulated by <%= config.doctorName %> and <%= config.coDoctorName %>, both BAMS-qualified Vaidyas, with over 30 years of Ayurvedic practice behind every formula.</p>
+      <div class="hero-cta">
+        <a class="btn btn-gold" href="/shop">Shop products</a>
+        <a class="btn btn-light" href="/contact">Consult the Vaidya</a>
+      </div>
+      <ul class="chips">
+        <li><%- include('partials/icon', { name: 'award', size: 18 }) %> BAMS-qualified Vaidyas</li>
+        <li><%- include('partials/icon', { name: 'leaf', size: 18 }) %> Handmade in small batches</li>
+        <li><%- include('partials/icon', { name: 'truck', size: 18 }) %> Delivered in India and abroad</li>
+      </ul>
+    </div>
+    <div class="hero-art">
+      <img src="/images/hero-products.png" alt="Barfani Ayurveda hair oil and hair shampoo" onerror="this.style.display='none'">
+    </div>
+  </div>
+</section>
+
+<section class="trustbar">
+  <div class="container trust-grid">
+    <div class="trust"><span class="trust-icon"><%- include('partials/icon', { name: 'award' }) %></span><div><strong>Doctor formulated</strong><span>By BAMS-qualified Vaidyas</span></div></div>
+    <div class="trust"><span class="trust-icon"><%- include('partials/icon', { name: 'leaf' }) %></span><div><strong>Made by hand</strong><span>Small batches, no mass production</span></div></div>
+    <div class="trust"><span class="trust-icon"><%- include('partials/icon', { name: 'truck' }) %></span><div><strong>Ships from Gujarat</strong><span>India and selected countries abroad</span></div></div>
+    <div class="trust"><span class="trust-icon"><%- include('partials/icon', { name: 'chat' }) %></span><div><strong>Personal guidance</strong><span>Call or WhatsApp with the Vaidya</span></div></div>
+  </div>
+</section>
+
+<% if (config.offer.enabled) { %>
+<section class="container section-tight">
+  <div class="offer-card">
+    <div class="offer-copy">
+      <p class="eyebrow eyebrow-gold">Diwali special<%= config.offer.until ? ' · valid till ' + config.offer.until : '' %></p>
+      <h2>Any <%= config.offer.bundleSize %> bottles for <%= inr(config.offer.bundlePrice) %></h2>
+      <p class="offer-was">Instead of <s><%= inr(config.offer.regularPrice) %></s>. You save <%= inr(config.offer.regularPrice - config.offer.bundlePrice) %>.</p>
+      <ul class="ticks">
+        <li><%- include('partials/icon', { name: 'check', size: 18 }) %> A free Diwali gift with your offer order</li>
+        <li><%- include('partials/icon', { name: 'check', size: 18 }) %> Free shipping within India</li>
+        <li><%- include('partials/icon', { name: 'check', size: 18 }) %> Valid on our hair care bottles</li>
+      </ul>
+      <a class="btn btn-gold" href="/shop?category=Hair+Care">Claim the offer</a>
+    </div>
+    <div class="offer-art"><%- include('partials/icon', { name: 'gift', size: 84 }) %></div>
+  </div>
+</section>
+<% } %>
+
+<section class="container section">
+  <div class="section-head center">
+    <p class="eyebrow">Shop by category</p>
+    <h2>Care for your hair and skin</h2>
+  </div>
+  <div class="tiles">
+    <a class="tile tile-hair" href="/shop?category=Hair+Care"><span class="tile-label">Hair care</span><strong>Oil, shampoo and hair ark</strong><span class="tile-link">Shop hair care <%- include('partials/icon', { name: 'arrow', size: 16 }) %></span></a>
+    <a class="tile tile-skin" href="/shop?category=Skin+Care"><span class="tile-label">Skin care</span><strong>Waxing powder and handmade soaps</strong><span class="tile-link">Shop skin care <%- include('partials/icon', { name: 'arrow', size: 16 }) %></span></a>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <p class="eyebrow">Our products</p>
+    <h2>Made with care, in small batches</h2>
+  </div>
+  <div class="grid"><% featured.forEach(p => { %><%- include('partials/product-card', { p }) %><% }) %></div>
+  <p class="center" style="margin-top:32px"><a class="btn btn-outline" href="/shop">View all products</a></p>
+</section>
+
+<section class="container section">
+  <div class="section-head center">
+    <p class="eyebrow">Meet your Vaidyas</p>
+    <h2>Guidance you can trust</h2>
+  </div>
+  <div class="persons">
+    <div class="person">
+      <span class="avatar">RP</span>
+      <div>
+        <h3><%= config.doctorName %></h3>
+        <p class="role">BAMS · Ayurvedic physician</p>
+        <p>Over 30 years of clinical practice. Patients consult him for Ayurvedic treatment and for guidance on everyday life.</p>
+      </div>
+    </div>
+    <div class="person">
+      <span class="avatar">PP</span>
+      <div>
+        <h3><%= config.coDoctorName %></h3>
+        <p class="role">BAMS · Ayurvedic physician</p>
+        <p>Develops and shares new products with her father, including the herbal waxing powder and handmade soaps.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% if (reviews.length) { %>
+<section class="container section">
+  <div class="section-head center">
+    <p class="eyebrow">Patient reviews</p>
+    <h2>What our patients say</h2>
+  </div>
+  <div class="reviews-grid"><% reviews.forEach(r => { %><%- include('partials/review', { r }) %><% }) %></div>
+  <p class="center"><a href="/reviews">Read all reviews</a></p>
+</section>
+<% } %>
+
+<section class="cta">
+  <div class="container">
+    <h2>Have a health concern?</h2>
+    <p>Fill a short consultation form and the Vaidya will reach you by call, WhatsApp or email.</p>
+    <a class="btn btn-gold" href="/contact">Book a consultation</a>
+  </div>
+</section>
+<%- include('partials/footer') %>

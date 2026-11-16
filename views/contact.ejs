@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+<main class="container section">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Consultation</p>
+      <h1>Consult the Vaidya</h1>
+    </div>
+  </div>
+  <div class="contact-layout">
+    <aside class="aside-card">
+      <h2>Share your concern</h2>
+      <p>Tell us a little about your health so the Vaidya can understand your concern before contacting you.</p>
+      <p><strong><%= config.doctorName %></strong><br><span class="small">BAMS · Shraddha Clinic</span></p>
+      <p><strong><%= config.coDoctorName %></strong><br><span class="small">BAMS</span></p>
+      <a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="<%= wa('Namaste, I would like to consult the Vaidya.') %>"><%- include('partials/icon', { name: 'chat', size: 18 }) %> Chat on WhatsApp</a>
+      <p class="small aside-note">Your details are shared only with the Vaidya and are never sold.</p>
+    </aside>
+
+    <form method="post" action="/contact" class="form">
+      <div class="form-card">
+        <h2>Personal details</h2>
+        <label>Full name *<input name="name" required maxlength="100" value="<%= form.name || '' %>"></label>
+        <div class="row">
+          <label>Age<input name="age" type="number" min="0" max="120" value="<%= form.age || '' %>"></label>
+          <label>Gender
+            <select name="gender">
+              <option value="">Select</option>
+              <% ['Female', 'Male', 'Other'].forEach(g => { %><option <%= form.gender === g ? 'selected' : '' %>><%= g %></option><% }) %>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <label>Phone / WhatsApp *<input name="phone" required maxlength="30" value="<%= form.phone || '' %>"></label>
+          <label>Email<input name="email" type="email" maxlength="120" value="<%= form.email || '' %>"></label>
+        </div>
+        <label>City / Country<input name="location" maxlength="100" value="<%= form.location || '' %>"></label>
+      </div>
+
+      <div class="form-card">
+        <h2>Health details</h2>
+        <label>Main health concern *<textarea name="concern" required rows="3"><%= form.concern || '' %></textarea></label>
+        <label>Since when?<input name="duration" maxlength="100" value="<%= form.duration || '' %>" placeholder="e.g. 6 months"></label>
+        <label>Existing conditions / past illness<textarea name="history" rows="2"><%= form.history || '' %></textarea></label>
+        <label>Current medicines<textarea name="medicines" rows="2"><%= form.medicines || '' %></textarea></label>
+        <label>Allergies<input name="allergies" maxlength="200" value="<%= form.allergies || '' %>"></label>
+        <label>Diet and lifestyle<textarea name="diet" rows="2"><%= form.diet || '' %></textarea></label>
+        <label>Sleep, digestion and energy<textarea name="sleep" rows="2"><%= form.sleep || '' %></textarea></label>
+      </div>
+
+      <div class="form-card">
+        <h2>How should we reach you?</h2>
+        <div class="row">
+          <label>Preferred contact
+            <select name="contactMode">
+              <% ['WhatsApp', 'Phone call', 'Email', 'Text message'].forEach(m => { %><option <%= form.contactMode === m ? 'selected' : '' %>><%= m %></option><% }) %>
+            </select>
+          </label>
+          <label>Preferred call time<input name="slot" maxlength="100" value="<%= form.slot || '' %>" placeholder="e.g. evenings after 6 PM"></label>
+        </div>
+        <label class="check"><input type="checkbox" name="consent" value="1"> I agree to share these details with the Vaidya for consultation purposes. *</label>
+      </div>
+      <button class="btn btn-gold btn-block">Send request</button>
+    </form>
+  </div>
+</main>
+<%- include('partials/footer') %>

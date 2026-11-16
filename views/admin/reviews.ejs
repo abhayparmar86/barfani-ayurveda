@@ -1,0 +1,20 @@
+<%- include('../partials/header') %>
+<main class="container section">
+  <h1>Reviews</h1>
+  <%- include('../partials/admin-nav') %>
+  <% if (!reviews.length) { %><p>No reviews yet.</p><% } %>
+  <% reviews.forEach(r => { %>
+    <div class="order">
+      <span class="stars"><%= stars(r.rating) %></span>
+      <span class="pill <%= r.approved ? 'pill-good' : 'pill-warn' %>"><%= r.approved ? 'Visible' : 'Waiting for approval' %></span><br>
+      <strong><%= r.user_name %></strong> on <%= r.product_name || 'General' %> · <span class="muted small"><%= r.created_at %></span>
+      <p><%= r.comment %></p>
+      <% if (r.image) { %><img src="<%= r.image %>" alt="Review photo" style="max-height:120px;border-radius:8px"><% } %>
+      <div class="admin-form">
+        <% if (!r.approved) { %><form method="post" action="/admin/reviews/<%= r.id %>/approve"><button class="btn btn-sm">Approve</button></form><% } %>
+        <form method="post" action="/admin/reviews/<%= r.id %>/delete" onsubmit="return confirm('Delete this review?')"><button class="btn btn-outline btn-sm">Delete</button></form>
+      </div>
+    </div>
+  <% }) %>
+</main>
+<%- include('../partials/footer') %>

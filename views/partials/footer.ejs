@@ -1,0 +1,43 @@
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <a class="brand brand-light" href="/">
+        <span class="brand-mark"><%- include('icon', { name: 'leaf', size: 22 }) %></span>
+        <span class="brand-text"><span class="brand-name">Barfani</span><span class="brand-sub">Ayurveda</span></span>
+      </a>
+      <p class="foot-text">Handmade Ayurvedic hair care and skin care from Shraddha Clinic, Surendranagar, Gujarat.</p>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <a href="/shop">All products</a>
+      <a href="/shop?category=Hair+Care">Hair care</a>
+      <a href="/shop?category=Skin+Care">Skin care</a>
+      <a href="/reviews">Patient reviews</a>
+    </div>
+    <div>
+      <h4>Customer care</h4>
+      <a href="/contact">Consult the Vaidya</a>
+      <a href="/faq">FAQ</a>
+      <a href="/policy/shipping">Shipping</a>
+      <a href="/policy/returns">Returns</a>
+      <a href="/policy/privacy">Privacy</a>
+      <a href="/policy/terms">Terms of service</a>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <a target="_blank" rel="noopener" href="<%= wa('Namaste, I have a question about Barfani Ayurveda.') %>">WhatsApp +<%= config.whatsapp %></a>
+      <% if (config.instagram) { %><a target="_blank" rel="noopener" href="https://instagram.com/<%= config.instagram %>">Instagram @<%= config.instagram %></a><% } %>
+      <a href="/about">About us</a>
+      <span class="fl">Surendranagar, Gujarat, India</span>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <% if (config.razorpay.enabled) { %><p class="pay-chips"><span>UPI</span><span>Visa</span><span>Mastercard</span><span>RuPay</span><span>Netbanking</span></p><% } %>
+    <p>Traditional Ayurvedic products. Individual results vary. This website does not replace medical advice.</p>
+    <p>© <%= new Date().getFullYear() %> Barfani Ayurveda</p>
+  </div>
+</footer>
+<a class="wa-float" target="_blank" rel="noopener" href="<%= wa('Namaste, I have a question about Barfani Ayurveda.') %>"><%- include('icon', { name: 'chat', size: 20 }) %><span>Chat with us</span></a>
+<script src="/js/app.js" defer></script>
+</body>
+</html>

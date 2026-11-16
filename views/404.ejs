@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+<main class="container section narrow center">
+  <p class="eyebrow">Error 404</p>
+  <h1>We could not find that page</h1>
+  <p>The page may have moved. Try searching our products or go back home.</p>
+  <form action="/shop" method="get" class="search" role="search" style="justify-content:center">
+    <input type="search" name="q" placeholder="Search products" aria-label="Search products">
+    <button class="btn">Search</button>
+  </form>
+  <p style="margin-top:20px"><a class="btn btn-gold" href="/">Go to home</a> <a class="btn btn-outline" href="/shop">Shop products</a></p>
+</main>
+<%- include('partials/footer') %>

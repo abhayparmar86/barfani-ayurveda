@@ -1,0 +1,43 @@
+<% if (!lines.length) { %>
+  <div class="empty">
+    <%- include('icon', { name: 'bag', size: 44 }) %>
+    <h3>Your cart is empty</h3>
+    <p>Add your favourite products to get started.</p>
+    <a class="btn" href="/shop">Continue shopping</a>
+  </div>
+<% } else { %>
+  <% const remainder = pricing.eligibleUnits % config.offer.bundleSize; %>
+  <% if (config.offer.enabled && remainder !== 0) { %>
+    <div class="drawer-offer">
+      <p class="small"><strong>Add <%= config.offer.bundleSize - remainder %> more offer bottle(s)</strong> to get <%= config.offer.bundleSize %> for <%= inr(config.offer.bundlePrice) %> and a free gift.</p>
+      <div class="progress"><span style="width: <%= Math.round((remainder / config.offer.bundleSize) * 100) %>%"></span></div>
+    </div>
+  <% } else if (pricing.freeGift) { %>
+    <p class="notice"><%- include('icon', { name: 'gift', size: 18 }) %> <span>Offer unlocked. A free Diwali gift is included.</span></p>
+  <% } %>
+  <ul class="drawer-items">
+    <% lines.forEach(l => { %>
+      <li class="drawer-item">
+        <a href="/product/<%= l.product.slug %>"><img class="di-img" src="<%= l.product.image %>" alt="<%= l.product.name %>" onerror="this.onerror=null;this.src='/images/placeholder.svg'"></a>
+        <div class="di-info">
+          <a class="di-name" href="/product/<%= l.product.slug %>"><%= l.product.name %></a>
+          <span class="muted small"><%= l.product.size %> · <%= inr(l.product.price) %></span>
+          <div class="di-controls">
+            <form method="post" action="/cart/update/<%= l.product.id %>" data-drawer-form>
+              <%- include('qty-stepper', { value: l.qty }) %>
+            </form>
+            <form method="post" action="/cart/remove/<%= l.product.id %>" data-drawer-form><button class="link-btn">Remove</button></form>
+          </div>
+        </div>
+        <strong><%= inr(l.product.price * l.qty) %></strong>
+      </li>
+    <% }) %>
+  </ul>
+  <div class="drawer-foot">
+    <div class="row-line"><span>Subtotal</span><span><%= inr(pricing.subtotal) %></span></div>
+    <% if (pricing.discount > 0) { %><div class="row-line good"><span>Diwali offer</span><span>−<%= inr(pricing.discount) %></span></div><% } %>
+    <div class="row-line total"><span>Total</span><span><%= inr(pricing.total) %></span></div>
+    <a class="btn btn-gold btn-block" href="/checkout">Checkout</a>
+    <a class="btn btn-outline btn-block" href="/cart">View cart</a>
+  </div>
+<% } %>

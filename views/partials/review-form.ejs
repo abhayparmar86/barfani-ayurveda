@@ -1,0 +1,30 @@
+<% if (user) { %>
+  <form method="post" action="/reviews" enctype="multipart/form-data" class="form form-card review-form">
+    <h3>Write a review</h3>
+    <% if (locals.fixed) { %>
+      <input type="hidden" name="productId" value="<%= fixed.id %>">
+      <input type="hidden" name="from" value="product">
+    <% } else { %>
+      <label>Product
+        <select name="productId">
+          <option value="">General</option>
+          <% products.forEach(p => { %><option value="<%= p.id %>"<%= selected === p.id ? ' selected' : '' %>><%= p.name %></option><% }) %>
+        </select>
+      </label>
+    <% } %>
+    <div>
+      <span class="label-text">Your rating</span>
+      <div class="star-input" role="radiogroup" aria-label="Rating">
+        <% [5, 4, 3, 2, 1].forEach(n => { %>
+          <input type="radio" name="rating" id="star-<%= n %>" value="<%= n %>" required>
+          <label for="star-<%= n %>" title="<%= n %> star<%= n === 1 ? '' : 's' %>">★</label>
+        <% }) %>
+      </div>
+    </div>
+    <label>Your review<textarea name="comment" required minlength="5" maxlength="1000" rows="4" placeholder="What did you like? How did you use it?"></textarea></label>
+    <label>Photo (optional, JPG/PNG/WebP, max 3 MB)<input type="file" name="image" accept="image/jpeg,image/png,image/webp"></label>
+    <button class="btn btn-gold">Submit review</button>
+  </form>
+<% } else { %>
+  <p class="notice"><%- include('icon', { name: 'chat', size: 18 }) %> <span><a href="/login">Log in</a> or <a href="/signup">sign up</a> to write a review.</span></p>
+<% } %>

@@ -1,0 +1,10 @@
+<%- include('partials/header') %>
+<main class="container section narrow">
+  <p class="eyebrow">Help</p>
+  <h1>Frequently asked questions</h1>
+  <% faqs.forEach(([question, answer]) => { %>
+    <details class="acc"><summary><%= question %></summary><p><%= answer %></p></details>
+  <% }) %>
+  <p style="margin-top:24px">Still have a question? <a href="/contact">Ask the Vaidya</a> or <a target="_blank" rel="noopener" href="<%= wa('Namaste, I have a question about Barfani Ayurveda.') %>">message us on WhatsApp</a>.</p>
+</main>
+<%- include('partials/footer') %>

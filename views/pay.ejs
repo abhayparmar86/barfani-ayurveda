@@ -1,0 +1,19 @@
+<%- include('partials/header') %>
+<main class="container section narrow center">
+  <h1>Complete your payment</h1>
+  <p>Order <strong>#<%= order.id %></strong> · Amount to pay <strong><%= inr(order.total) %></strong></p>
+  <div class="form-card pay-card">
+    <p class="muted">You will pay securely on Razorpay. We never see your card or UPI details.</p>
+    <button class="btn btn-gold btn-block" id="pay-button" type="button">Pay <%= inr(order.total) %></button>
+    <p class="notice" id="pay-error" hidden></p>
+    <noscript><p class="notice">Please enable JavaScript to pay online, or <a href="<%= wa('Namaste, I placed order #' + order.id + ' and would like to pay on WhatsApp.') %>">pay on WhatsApp</a>.</p></noscript>
+    <p class="small"><a target="_blank" rel="noopener" href="<%= wa('Namaste, I placed order #' + order.id + ' and need help with payment.') %>">Need help? Chat on WhatsApp</a></p>
+  </div>
+  <div id="pay-data" hidden
+    data-key="<%= keyId %>" data-amount="<%= order.total * 100 %>" data-order="<%= order.id %>"
+    data-rzp-order="<%= order.razorpay_order_id %>" data-name="<%= order.name %>"
+    data-email="<%= order.email || '' %>" data-phone="<%= order.phone %>"></div>
+</main>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="/js/pay.js" defer></script>
+<%- include('partials/footer') %>

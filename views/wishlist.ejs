@@ -1,0 +1,7 @@
+<%- include('partials/header') %>
+<main class="container section">
+  <h1>My wishlist</h1>
+  <% if (!products.length) { %><p>Your wishlist is empty. <a href="/shop">Browse products</a></p><% } %>
+  <div class="grid"><% products.forEach(p => { %><%- include('partials/product-card', { p }) %><% }) %></div>
+</main>
+<%- include('partials/footer') %>

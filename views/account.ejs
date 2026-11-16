@@ -1,0 +1,17 @@
+<%- include('partials/header') %>
+<main class="container section narrow">
+  <h1>My account</h1>
+  <p><strong><%= user.name %></strong><br><%= user.email %></p>
+  <h2>My orders</h2>
+  <% if (!orders.length) { %><p>No orders yet. <a href="/shop">Start shopping</a></p><% } %>
+  <% orders.forEach(o => { %>
+    <div class="order">
+      <strong>Order #<%= o.id %></strong> · <%= String(o.created_at).slice(0, 10) %> · <%= o.status %> · Payment: <%= o.payment_status %><br>
+      <% o.items.forEach(i => { %><%= i.name %> × <%= i.qty %><br><% }) %>
+      Total: <%= inr(o.total) %>
+      <% if (o.tracking_note) { %><br><span class="muted small">Update: <%= o.tracking_note %></span><% } %>
+      <% if (o.payment_status === 'Pending' && o.razorpay_order_id) { %><br><a class="btn btn-gold btn-sm" href="/pay/<%= o.id %>">Complete payment</a><% } %>
+    </div>
+  <% }) %>
+</main>
+<%- include('partials/footer') %>

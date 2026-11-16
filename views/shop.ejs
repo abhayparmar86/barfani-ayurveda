@@ -1,0 +1,29 @@
+<%- include('partials/header') %>
+<main class="container section">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Shop</p>
+      <h1>Our products</h1>
+    </div>
+    <form action="/shop" method="get" class="search" role="search">
+      <% if (category) { %><input type="hidden" name="category" value="<%= category %>"><% } %>
+      <input type="search" name="q" value="<%= q %>" placeholder="Search products" aria-label="Search products">
+      <select name="sort" aria-label="Sort products" onchange="this.form.submit()">
+        <option value="">Featured</option>
+        <option value="price_asc"<%= sort === 'price_asc' ? ' selected' : '' %>>Price: low to high</option>
+        <option value="price_desc"<%= sort === 'price_desc' ? ' selected' : '' %>>Price: high to low</option>
+        <option value="rating"<%= sort === 'rating' ? ' selected' : '' %>>Top rated</option>
+      </select>
+      <button class="btn">Search</button>
+    </form>
+  </div>
+  <div class="tabs">
+    <a href="/shop" class="<%= !category ? 'active' : '' %>">All</a>
+    <% categories.forEach(c => { %>
+      <a href="/shop?category=<%= encodeURIComponent(c) %>" class="<%= category === c ? 'active' : '' %>"><%= c %></a>
+    <% }) %>
+  </div>
+  <% if (!products.length) { %><p>No products found. <a href="/shop">See all products</a></p><% } %>
+  <div class="grid"><% products.forEach(p => { %><%- include('partials/product-card', { p }) %><% }) %></div>
+</main>
+<%- include('partials/footer') %>

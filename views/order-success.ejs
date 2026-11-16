@@ -1,0 +1,21 @@
+<%- include('partials/header') %>
+<main class="container section narrow center">
+  <% if (order.payment_status === 'Pending') { %>
+    <h1>Payment pending</h1>
+    <p>Your order <strong>#<%= order.id %></strong> of <strong><%= inr(order.total) %></strong> is saved, but the payment is not complete yet.</p>
+    <p><a class="btn btn-gold" href="/pay/<%= order.id %>">Complete payment</a></p>
+  <% } else { %>
+    <h1>Thank you, <%= order.name %>! 🙏</h1>
+    <% if (order.payment_status === 'Paid') { %>
+      <p>Payment received. Your order <strong>#<%= order.id %></strong> of <strong><%= inr(order.total) %></strong> is confirmed.</p>
+      <p>We will pack it by hand and share the shipping details with you.</p>
+    <% } else { %>
+      <p>Your order <strong>#<%= order.id %></strong> of <strong><%= inr(order.total) %></strong> has been received.</p>
+      <p>We will contact you shortly to confirm shipping and payment. For a faster reply, message us on WhatsApp.</p>
+    <% } %>
+    <a class="btn btn-wa" target="_blank" rel="noopener"
+       href="<%= wa('Namaste, I placed order #' + order.id + ' (' + inr(order.total) + ') on Barfani Ayurveda. My name is ' + order.name + '.') %>"><%- include('partials/icon', { name: 'chat', size: 18 }) %> Message us on WhatsApp</a>
+  <% } %>
+  <p><a href="/shop">Continue shopping</a></p>
+</main>
+<%- include('partials/footer') %>

@@ -1,0 +1,15 @@
+<%- include('../partials/header') %>
+<main class="container section">
+  <h1>Consultation requests</h1>
+  <%- include('../partials/admin-nav') %>
+  <% if (!consultations.length) { %><p>No requests yet.</p><% } %>
+  <% consultations.forEach(c => { %>
+    <details class="order">
+      <summary><strong><%= c.data.name %></strong> · <%= c.data.phone %> · <span class="muted small"><%= c.created_at %></span></summary>
+      <dl class="consult-data">
+        <% Object.entries(c.data).forEach(([key, value]) => { %><% if (value) { %><dt><%= key %></dt><dd><%= value %></dd><% } %><% }) %>
+      </dl>
+    </details>
+  <% }) %>
+</main>
+<%- include('../partials/footer') %>

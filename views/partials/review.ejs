@@ -1,0 +1,9 @@
+<div class="review">
+  <div class="review-top">
+    <span class="stars"><%= stars(r.rating) %></span>
+    <small class="muted"><%= String(r.created_at || '').slice(0, 10) %></small>
+  </div>
+  <p><%= r.comment %></p>
+  <% if (r.image) { %><img src="<%= r.image %>" alt="Review photo from <%= shortName(r.user_name) %>" loading="lazy"><% } %>
+  <small class="muted">— <%= shortName(r.user_name) %><% if (r.product_name) { %> on <% if (r.product_slug) { %><a href="/product/<%= r.product_slug %>"><%= r.product_name %></a><% } else { %><%= r.product_name %><% } %><% } %></small>
+</div>

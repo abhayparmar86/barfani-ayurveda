@@ -1,0 +1,6 @@
+<%- include('partials/header') %>
+<main class="container section narrow">
+  <h1><%= policy.title %></h1>
+  <% policy.body.forEach(paragraph => { %><p><%= paragraph %></p><% }) %>
+</main>
+<%- include('partials/footer') %>

@@ -1,0 +1,17 @@
+<%- include('../partials/header') %>
+<main class="container section">
+  <h1>Edit order #<%= order.id %></h1>
+  <%- include('../partials/admin-nav') %>
+  <p>Update quantities to match what was agreed with the customer on WhatsApp. Set a quantity to zero to remove a product. Prices and any eligible offer are recalculated from the current product catalog.</p>
+  <form method="post" action="/admin/orders/<%= order.id %>/edit" class="form-card">
+    <% order.products.forEach(p => { %>
+      <label class="row-line">
+        <span><strong><%= p.name %></strong> (<%= p.size %>) · <%= inr(p.price) %><% if (!p.in_stock) { %> · unavailable (can only be removed or reduced)<% } %></span>
+        <input type="number" name="qty[<%= p.id %>]" min="0" max="<%= p.in_stock ? 10 : p.quantity %>" value="<%= p.quantity %>" required>
+      </label>
+    <% }) %>
+    <button class="btn btn-gold">Save revised order</button>
+    <a class="btn btn-outline" href="/admin/orders">Cancel</a>
+  </form>
+</main>
+<%- include('../partials/footer') %>

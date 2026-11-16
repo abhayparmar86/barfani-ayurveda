@@ -1,0 +1,51 @@
+<%- include('../partials/header') %>
+<main class="container section">
+  <h1>Orders</h1>
+  <%- include('../partials/admin-nav') %>
+  <div class="tabs">
+    <a href="/admin/orders" class="<%= !status ? 'active' : '' %>">All</a>
+    <% statuses.forEach(s => { %><a href="/admin/orders?status=<%= s %>" class="<%= status === s ? 'active' : '' %>"><%= s %></a><% }) %>
+  </div>
+  <% if (!orders.length) { %><p>No orders found.</p><% } %>
+  <% orders.forEach(o => { %>
+    <div class="order admin-order">
+      <div class="admin-order-head">
+        <strong>Order #<%= o.id %></strong>
+        <span><%= o.created_at %></span>
+        <span class="pill"><%= o.status %></span>
+        <span class="pill <%= o.payment_status === 'Paid' ? 'pill-good' : 'pill-warn' %>"><%= o.payment_method === 'online' ? 'Online' : 'WhatsApp' %>: <%= o.payment_status %></span>
+        <% if (o.free_gift) { %><span class="pill pill-gold">Free gift</span><% } %>
+      </div>
+      <p>
+        <% o.items.forEach(i => { %><%= i.name %> (<%= i.size %>) × <%= i.qty %><br><% }) %>
+        <strong>Total <%= inr(o.total) %></strong> <span class="muted small">(discount <%= inr(o.discount) %>)</span>
+      </p>
+      <p class="small">
+        <%= o.name %> · <a href="tel:<%= o.phone %>"><%= o.phone %></a><% if (o.email) { %> · <%= o.email %><% } %><br>
+        <%= o.address %>, <%= o.city %>, <%= o.state || '' %> <%= o.pincode %>, <%= o.country %>
+        <% if (o.notes) { %><br>Notes: <%= o.notes %><% } %>
+      </p>
+      <p class="admin-form">
+        <a class="btn btn-outline btn-sm" href="<%= o.whatsappUrl %>" target="_blank" rel="noopener">Message customer on WhatsApp</a>
+        <% if (o.payment_status !== 'Paid' && o.status !== 'Cancelled') { %>
+          <a class="btn btn-outline btn-sm" href="/admin/orders/<%= o.id %>/edit">Edit order</a>
+        <% } %>
+      </p>
+      <form method="post" action="/admin/orders/<%= o.id %>/status" class="admin-form">
+        <select name="status"><% statuses.forEach(s => { %><option<%= o.status === s ? ' selected' : '' %><%= s === 'Confirmed' && o.payment_status !== 'Paid' ? ' disabled' : '' %>><%= s %></option><% }) %></select>
+        <input name="tracking_note" maxlength="300" placeholder="Tracking number or note for the customer" value="<%= o.tracking_note || '' %>">
+        <label class="check-inline"><input type="checkbox" name="notify" value="1"> Email customer</label>
+        <button class="btn btn-sm">Save</button>
+      </form>
+      <% if (o.payment_status !== 'Paid') { %>
+        <form method="post" action="/admin/orders/<%= o.id %>/paid" style="margin-top:8px"><button class="btn btn-outline btn-sm">Mark as paid</button></form>
+      <% } %>
+      <% if (o.payment_status === 'Paid' && o.status !== 'Cancelled') { %>
+        <form method="post" action="/admin/orders/<%= o.id %>/confirm" style="margin-top:8px">
+          <button class="btn btn-gold btn-sm"><%= o.status === 'Confirmed' ? 'Resend final confirmation email' : 'Confirm order and email final summary' %></button>
+        </form>
+      <% } %>
+    </div>
+  <% }) %>
+</main>
+<%- include('../partials/footer') %>

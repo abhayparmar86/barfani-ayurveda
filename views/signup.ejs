@@ -1,0 +1,13 @@
+<%- include('partials/header') %>
+<main class="container section narrow">
+  <h1>Create an account</h1>
+  <form method="post" action="/signup" class="form">
+    <label>Full name<input name="name" required maxlength="80" autocomplete="name" value="<%= form.name || '' %>"></label>
+    <label>Email<input name="email" type="email" required autocomplete="email" value="<%= form.email || '' %>"></label>
+    <label>Phone / WhatsApp<input name="phone" type="tel" maxlength="20" autocomplete="tel" value="<%= form.phone || '' %>"></label>
+    <label>Password (min 8 characters)<input name="password" type="password" minlength="8" required autocomplete="new-password"></label>
+    <button class="btn btn-gold">Sign up</button>
+  </form>
+  <p>Already registered? <a href="/login">Log in</a></p>
+</main>
+<%- include('partials/footer') %>

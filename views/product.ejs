@@ -1,0 +1,92 @@
+<%- include('partials/header') %>
+<%
+const inOffer = product.offer_eligible && config.offer.enabled;
+const wished = wishIds.has(product.id);
+%>
+<main class="container section">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/shop">Shop</a><span>/</span><a href="/shop?category=<%= encodeURIComponent(product.category) %>"><%= product.category %></a><span>/</span><%= product.name %>
+  </nav>
+
+  <div class="pdp">
+    <div class="pdp-media" data-zoom>
+      <img src="<%= product.image %>" alt="<%= product.name %>" onerror="this.onerror=null;this.src='/images/placeholder.svg'">
+      <% if (inOffer) { %><span class="tag">Diwali offer</span><% } %>
+    </div>
+
+    <div class="pdp-info">
+      <span class="cat"><%= product.category %></span>
+      <h1><%= product.name %></h1>
+      <% if (summary.count) { %>
+        <a class="rating" href="#reviews"><span class="stars"><%= stars(summary.avg) %></span> <%= summary.avg.toFixed(1) %> · <%= summary.count %> review<%= summary.count === 1 ? '' : 's' %></a>
+      <% } else { %>
+        <a class="rating muted" href="#reviews">No reviews yet. Be the first to review</a>
+      <% } %>
+      <p class="price price-lg"><%= inr(product.price) %> <small><%= product.size %></small></p>
+      <% if (inOffer) { %>
+        <p class="notice"><%- include('partials/icon', { name: 'gift', size: 18 }) %> <span>Diwali offer: any <%= config.offer.bundleSize %> offer bottles for <%= inr(config.offer.bundlePrice) %>, with a free gift. Applied automatically in your cart.</span></p>
+      <% } %>
+
+      <h2 class="h-sm">About this item</h2>
+      <p class="lead-sm"><%= filled(product.benefit, 'Details coming soon.') %></p>
+      <ul class="perks">
+        <li><%- include('partials/icon', { name: 'leaf', size: 18 }) %> Handmade in small batches</li>
+        <li><%- include('partials/icon', { name: 'award', size: 18 }) %> Formulated by BAMS-qualified Vaidyas</li>
+        <li><%- include('partials/icon', { name: 'chat', size: 18 }) %> Not sure it suits you? <a href="/contact">Ask the Vaidya</a></li>
+      </ul>
+
+      <details class="acc" open><summary>Key ingredients</summary><p><%= filled(product.ingredients, 'Ingredient list coming soon.') %></p></details>
+      <details class="acc" open><summary>How to use</summary><p><%= filled(product.usage, 'Usage instructions coming soon.') %></p></details>
+      <details class="acc"><summary>Shipping and returns</summary><p>Packed by hand in Surendranagar, Gujarat. See our <a href="/policy/shipping">shipping policy</a> and <a href="/policy/returns">returns policy</a>.</p></details>
+      <p class="small muted">Traditional Ayurvedic product. Individual results vary. Not a substitute for medical advice.</p>
+    </div>
+
+    <aside class="buybox">
+      <p class="price price-lg"><%= inr(product.price) %></p>
+      <p class="stock good"><%- include('partials/icon', { name: 'check', size: 16 }) %> In stock</p>
+      <p class="small muted">Ships from Surendranagar, Gujarat. Shipping is confirmed with you before dispatch<%= config.offer.enabled ? ' (free in India on offer orders)' : '' %>.</p>
+      <form method="post" action="/cart/add/<%= product.id %>" id="pdp-form" data-cart-form>
+        <label class="qty-label">Quantity</label>
+        <%- include('partials/qty-stepper') %>
+        <div class="buy-actions">
+          <button class="btn btn-block">Add to cart</button>
+          <button class="btn btn-gold btn-block" name="buyNow" value="1">Buy now</button>
+        </div>
+      </form>
+      <a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="<%= wa('Namaste, I would like to order ' + product.name + ' (' + product.size + ') from Barfani Ayurveda.') %>"><%- include('partials/icon', { name: 'chat', size: 18 }) %> Order on WhatsApp</a>
+      <form method="post" action="/wishlist/toggle/<%= product.id %>">
+        <button class="btn btn-outline btn-block <%= wished ? 'is-active' : '' %>"><%- include('partials/icon', { name: 'heart', size: 18 }) %> <%= wished ? 'Saved to wishlist' : 'Save to wishlist' %></button>
+      </form>
+      <% if (config.razorpay.enabled) { %><p class="small muted center">Secure online payment: UPI, cards, netbanking</p><% } %>
+    </aside>
+  </div>
+
+  <section class="pdp-section" id="reviews">
+    <h2>Customer reviews</h2>
+    <div class="reviews-layout">
+      <div>
+        <%- include('partials/rating-summary', { summary }) %>
+        <%- include('partials/review-form', { fixed: product }) %>
+      </div>
+      <div>
+        <% if (!reviews.length) { %><p class="muted">No reviews for this product yet.</p><% } %>
+        <% reviews.forEach(r => { %><%- include('partials/review', { r: Object.assign({ product_name: null }, r) }) %><% }) %>
+        <p><a href="/reviews">See reviews for all products</a></p>
+      </div>
+    </div>
+  </section>
+
+  <% if (related.length) { %>
+  <section class="pdp-section">
+    <h2>You may also like</h2>
+    <div class="grid"><% related.forEach(p => { %><%- include('partials/product-card', { p }) %><% }) %></div>
+  </section>
+  <% } %>
+</main>
+
+<div class="buybar">
+  <div><strong><%= inr(product.price) %></strong><small class="muted"><%= product.size %></small></div>
+  <button class="btn" form="pdp-form">Add to cart</button>
+  <button class="btn btn-gold" form="pdp-form" name="buyNow" value="1">Buy now</button>
+</div>
+<%- include('partials/footer') %>

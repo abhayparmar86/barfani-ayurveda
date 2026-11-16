@@ -1,0 +1,12 @@
+<%- include('../partials/header') %>
+<main class="container section">
+  <h1>Admin</h1>
+  <%- include('../partials/admin-nav') %>
+  <div class="stats">
+    <a class="stat" href="/admin/orders?status=New"><strong><%= stats.newOrders %></strong><span>new orders</span></a>
+    <a class="stat" href="/admin/orders"><strong><%= stats.pendingPayment %></strong><span>online payments pending</span></a>
+    <a class="stat" href="/admin/reviews"><strong><%= stats.pendingReviews %></strong><span>reviews waiting for approval</span></a>
+    <a class="stat" href="/admin/consultations"><strong><%= stats.consultations %></strong><span>consultation requests</span></a>
+  </div>
+</main>
+<%- include('../partials/footer') %>

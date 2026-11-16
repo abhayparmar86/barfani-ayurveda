@@ -1,0 +1,12 @@
+<div class="rating-summary">
+  <div class="rs-score">
+    <strong><%= summary.count ? summary.avg.toFixed(1) : '–' %></strong>
+    <span class="stars"><%= stars(summary.avg) %></span>
+    <small class="muted"><%= summary.count %> review<%= summary.count === 1 ? '' : 's' %></small>
+  </div>
+  <div class="rs-bars">
+    <% summary.bars.forEach(b => { %>
+      <div class="rs-row"><span><%= b.star %> ★</span><div class="rs-track"><span style="width: <%= b.pct %>%"></span></div><span><%= b.pct %>%</span></div>
+    <% }) %>
+  </div>
+</div>

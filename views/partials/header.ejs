@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= locals.title ? locals.title + ' | ' : '' %><%= config.siteName %></title>
+  <meta name="description" content="<%= locals.metaDescription || 'Handmade pure Ayurvedic hair care and skin care from Shraddha Clinic, Surendranagar, Gujarat.' %>">
+  <meta name="theme-color" content="#1b3a2a">
+  <link rel="canonical" href="<%= canonical %>">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="<%= locals.jsonLd ? 'product' : 'website' %>">
+  <meta property="og:site_name" content="<%= config.siteName %>">
+  <meta property="og:title" content="<%= locals.title ? locals.title + ' | ' : '' %><%= config.siteName %>">
+  <meta property="og:url" content="<%= canonical %>">
+  <meta property="og:image" content="<%= locals.ogImage || config.siteUrl + '/images/hero-products.png' %>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <% if (locals.jsonLd) { %><script type="application/ld+json"><%- JSON.stringify(jsonLd).replace(/</g, '\\u003c') %></script><% } %>
+  <% if (config.gaId) { %>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=<%= config.gaId %>"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','<%= config.gaId %>');</script>
+  <% } %>
+</head>
+<body class="<%= locals.bodyClass || '' %>">
+<% if (config.offer.enabled) { %>
+  <div class="ribbon">
+    <%- include('icon', { name: 'gift', size: 16 }) %>
+    <span>Diwali Offer: any <%= config.offer.bundleSize %> bottles for <strong><%= inr(config.offer.bundlePrice) %></strong> + free gift + free shipping in India<%= config.offer.until ? ' · valid till ' + config.offer.until : '' %></span>
+    <a href="/shop">Shop now</a>
+  </div>
+<% } %>
+<header class="site-header">
+  <div class="container bar">
+    <a class="brand" href="/" aria-label="Barfani Ayurveda home">
+      <span class="brand-mark"><%- include('icon', { name: 'leaf', size: 22 }) %></span>
+      <span class="brand-text"><span class="brand-name">Barfani</span><span class="brand-sub">Ayurveda</span></span>
+    </a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle menu">
+    <nav class="nav" aria-label="Main">
+      <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>"<% if (currentPath === '/') { %> aria-current="page"<% } %>>Home</a>
+      <a href="/shop" class="<%= currentPath === '/shop' || currentPath.startsWith('/product/') ? 'active' : '' %>"<% if (currentPath === '/shop' || currentPath.startsWith('/product/')) { %> aria-current="page"<% } %>>Shop</a>
+      <a href="/reviews" class="<%= currentPath === '/reviews' ? 'active' : '' %>"<% if (currentPath === '/reviews') { %> aria-current="page"<% } %>>Reviews</a>
+      <a href="/about" class="<%= currentPath === '/about' ? 'active' : '' %>"<% if (currentPath === '/about') { %> aria-current="page"<% } %>>About</a>
+      <a href="/contact" class="<%= currentPath === '/contact' ? 'active' : '' %>"<% if (currentPath === '/contact') { %> aria-current="page"<% } %>>Consult the Vaidya</a>
+    </nav>
+    <div class="actions">
+      <a class="icon-btn" href="/wishlist" aria-label="Wishlist"><%- include('icon', { name: 'heart' }) %><% if (wishIds.size) { %><span class="badge"><%= wishIds.size %></span><% } %></a>
+      <a class="icon-btn" href="/cart" aria-label="Cart" data-open-cart><%- include('icon', { name: 'bag' }) %><span class="badge" data-cart-count<%- cartCount ? '' : ' hidden' %>><%= cartCount %></span></a>
+      <% if (user) { %>
+        <a class="user-chip" href="/account"><%- include('icon', { name: 'user', size: 18 }) %><span class="user-name"><%= user.name.split(' ')[0] %></span></a>
+        <form method="post" action="/logout"><button class="link-btn">Logout</button></form>
+      <% } else { %>
+        <a class="btn btn-outline btn-sm" href="/login">Login</a>
+      <% } %>
+      <label class="burger" for="nav-toggle" aria-label="Open menu"><%- include('icon', { name: 'menu', size: 24 }) %></label>
+    </div>
+  </div>
+</header>
+
+<div class="drawer-overlay" data-drawer-close></div>
+<aside class="drawer" id="mini-cart" aria-label="Shopping cart" aria-hidden="true">
+  <div class="drawer-head">
+    <h2>Your cart</h2>
+    <button type="button" class="icon-btn" data-drawer-close aria-label="Close cart">✕</button>
+  </div>
+  <div class="drawer-body" id="mini-cart-body"></div>
+</aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<% if (flash) { %><div class="flash <%= flash.type %>" role="status"><%= flash.msg %></div><% } %>
